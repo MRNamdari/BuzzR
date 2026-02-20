@@ -1,80 +1,96 @@
 import { relations } from "drizzle-orm/relations";
 import {
+  attributes,
+  attributeValues,
   users,
   auditLogs,
   categories,
+  products,
+  categoryTranslations,
   collections,
   collectionTranslations,
+  giftCards,
+  giftCardTransactions,
+  orders,
+  userAddresses,
+  locations,
   media,
-  mediaTags,
   mediaRelationsTable,
   mediaSets,
   mediaSetItems,
-  orders,
-  orderItems,
-  products,
-  productVariations,
+  mediaTags,
+  mediaTranslations,
   mediaVersions,
-  userAddresses,
+  orderItems,
+  productVariants,
   payments,
   campaigns,
   policies,
+  policyBindings,
+  abacResources,
+  abacActions,
   productAttributeValues,
-  attributes,
-  attributeValues,
   productBundles,
+  productBundleItems,
   productInventory,
   warehouses,
-  productPrices,
   productPriceHistory,
+  productPrices,
   productPurchasePrices,
   suppliers,
-  productTranslations,
   productRelations,
   productShippingRules,
   shippingMethods,
+  shippingZones,
   productStatusHistory,
+  productTranslations,
   productVersions,
-  reviews,
-  shipmentItems,
-  shipments,
+  promotions,
+  promotionActions,
+  promotionConditions,
+  promotionTargets,
+  promotionUsage,
+  refunds,
   returns,
+  returnItems,
+  reviews,
   reviewVotes,
   roles,
   rolesTranslations,
-  locations,
-  shippingZones,
+  shipmentItems,
+  shipments,
   userAttributes,
   userTierAssignments,
   userTiers,
   wallets,
+  walletLedger,
   wishlists,
   wishlistItems,
-  categoryTranslations,
-  giftCards,
-  giftCardTransactions,
-  mediaTranslations,
-  policyBindings,
-  abacResources,
-  abacActions,
-  productBundleItems,
-  refunds,
-  returnItems,
-  promotions,
-  promotionTargets,
-  walletLedger,
-  promotionConditions,
-  promotionActions,
-  promotionUsage,
   campaignProducts,
+  promotionCampaigns,
+  promotionCampaignLinks,
   rolePermissions,
   permissions,
   userRoles,
-  promotionCampaigns,
-  promotionCampaignLinks,
   collectionProducts,
   favorites,
 } from "./schema";
+
+export const attributeValuesRelations = relations(
+  attributeValues,
+  ({ one, many }) => ({
+    attribute: one(attributes, {
+      fields: [attributeValues.attributeId],
+      references: [attributes.id],
+    }),
+    productAttributeValues: many(productAttributeValues),
+  }),
+);
+
+export const attributesRelations = relations(attributes, ({ many }) => ({
+  attributeValues: many(attributeValues),
+  productAttributeValues: many(productAttributeValues),
+}));
 
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   user: one(users, {
@@ -85,23 +101,51 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   auditLogs: many(auditLogs),
-  mediaVersions: many(mediaVersions),
   orders: many(orders),
+  mediaVersions: many(mediaVersions),
+  userAddresses: many(userAddresses),
   productStatusHistories: many(productStatusHistory),
   productVersions: many(productVersions),
+  promotionUsages: many(promotionUsage),
   reviews: many(reviews),
   reviewVotes: many(reviewVotes),
-  userAddresses: many(userAddresses),
   userAttributes: many(userAttributes),
   userTierAssignments: many(userTierAssignments),
   wallets: many(wallets),
   wishlists: many(wishlists),
-  promotionUsages: many(promotionUsage),
   userRoles: many(userRoles),
   favorites: many(favorites),
 }));
 
+export const productsRelations = relations(products, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
+  orderItems: many(orderItems),
+  productVariations: many(productVariants),
+  productAttributeValues: many(productAttributeValues),
+  productBundles: many(productBundles),
+  productBundleItems: many(productBundleItems),
+  productRelations_productId: many(productRelations, {
+    relationName: "productRelations_productId_products_id",
+  }),
+  productRelations_relatedProductId: many(productRelations, {
+    relationName: "productRelations_relatedProductId_products_id",
+  }),
+  productShippingRules: many(productShippingRules),
+  productStatusHistories: many(productStatusHistory),
+  productTranslations: many(productTranslations),
+  productVersions: many(productVersions),
+  reviews: many(reviews),
+  wishlistItems: many(wishlistItems),
+  campaignProducts: many(campaignProducts),
+  collectionProducts: many(collectionProducts),
+  favorites: many(favorites),
+}));
+
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  products: many(products),
   category: one(categories, {
     fields: [categories.parentId],
     references: [categories.id],
@@ -110,9 +154,18 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
   categories: many(categories, {
     relationName: "categories_parentId_categories_id",
   }),
-  products: many(products),
   categoryTranslations: many(categoryTranslations),
 }));
+
+export const categoryTranslationsRelations = relations(
+  categoryTranslations,
+  ({ one }) => ({
+    category: one(categories, {
+      fields: [categoryTranslations.categoryId],
+      references: [categories.id],
+    }),
+  }),
+);
 
 export const collectionTranslationsRelations = relations(
   collectionTranslations,
@@ -129,66 +182,26 @@ export const collectionsRelations = relations(collections, ({ many }) => ({
   collectionProducts: many(collectionProducts),
 }));
 
-export const mediaTagsRelations = relations(mediaTags, ({ one }) => ({
-  media: one(media, {
-    fields: [mediaTags.mediaId],
-    references: [media.id],
-  }),
-}));
-
-export const mediaRelations = relations(media, ({ many }) => ({
-  mediaTags: many(mediaTags),
-  mediaRelations: many(mediaRelationsTable),
-  mediaSetItems: many(mediaSetItems),
-  mediaVersions: many(mediaVersions),
-  mediaTranslations: many(mediaTranslations),
-}));
-
-export const mediaRelationsRelations = relations(
-  mediaRelationsTable,
+export const giftCardTransactionsRelations = relations(
+  giftCardTransactions,
   ({ one }) => ({
-    media: one(media, {
-      fields: [mediaRelationsTable.mediaId],
-      references: [media.id],
+    giftCard: one(giftCards, {
+      fields: [giftCardTransactions.giftCardId],
+      references: [giftCards.id],
+    }),
+    order: one(orders, {
+      fields: [giftCardTransactions.orderId],
+      references: [orders.id],
     }),
   }),
 );
 
-export const mediaSetItemsRelations = relations(mediaSetItems, ({ one }) => ({
-  mediaSet: one(mediaSets, {
-    fields: [mediaSetItems.mediaSetId],
-    references: [mediaSets.id],
-  }),
-  media: one(media, {
-    fields: [mediaSetItems.mediaId],
-    references: [media.id],
-  }),
-}));
-
-export const mediaSetsRelations = relations(mediaSets, ({ many }) => ({
-  mediaSetItems: many(mediaSetItems),
-}));
-
-export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
-  order: one(orders, {
-    fields: [orderItems.orderId],
-    references: [orders.id],
-  }),
-  product: one(products, {
-    fields: [orderItems.productId],
-    references: [products.id],
-  }),
-  productVariation: one(productVariations, {
-    fields: [orderItems.variationId],
-    references: [productVariations.id],
-  }),
-  shipmentItems: many(shipmentItems),
-  refunds: many(refunds),
-  returnItems: many(returnItems),
+export const giftCardsRelations = relations(giftCards, ({ many }) => ({
+  giftCardTransactions: many(giftCardTransactions),
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
-  orderItems: many(orderItems),
+  giftCardTransactions: many(giftCardTransactions),
   user: one(users, {
     fields: [orders.userId],
     references: [users.id],
@@ -203,68 +216,12 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     references: [userAddresses.id],
     relationName: "orders_shippingAddressId_userAddresses_id",
   }),
-  payments: many(payments),
-  reviews: many(reviews),
-  returns: many(returns),
-  shipments: many(shipments),
-  giftCardTransactions: many(giftCardTransactions),
-  promotionUsages: many(promotionUsage),
-}));
-
-export const productsRelations = relations(products, ({ one, many }) => ({
   orderItems: many(orderItems),
-  productAttributeValues: many(productAttributeValues),
-  productBundles: many(productBundles),
-  productTranslations: many(productTranslations),
-  category: one(categories, {
-    fields: [products.categoryId],
-    references: [categories.id],
-  }),
-  productVariations: many(productVariations),
-  productRelations_productId: many(productRelations, {
-    relationName: "productRelations_productId_products_id",
-  }),
-  productRelations_relatedProductId: many(productRelations, {
-    relationName: "productRelations_relatedProductId_products_id",
-  }),
-  productShippingRules: many(productShippingRules),
-  productStatusHistories: many(productStatusHistory),
-  productVersions: many(productVersions),
+  payments: many(payments),
+  promotionUsages: many(promotionUsage),
+  returns: many(returns),
   reviews: many(reviews),
-  wishlistItems: many(wishlistItems),
-  productBundleItems: many(productBundleItems),
-  campaignProducts: many(campaignProducts),
-  collectionProducts: many(collectionProducts),
-  favorites: many(favorites),
-}));
-
-export const productVariationsRelations = relations(
-  productVariations,
-  ({ one, many }) => ({
-    orderItems: many(orderItems),
-    productAttributeValues: many(productAttributeValues),
-    productInventories: many(productInventory),
-    productPrices: many(productPrices),
-    productPriceHistories: many(productPriceHistory),
-    productPurchasePrices: many(productPurchasePrices),
-    product: one(products, {
-      fields: [productVariations.productId],
-      references: [products.id],
-    }),
-    wishlistItems: many(wishlistItems),
-    productBundleItems: many(productBundleItems),
-  }),
-);
-
-export const mediaVersionsRelations = relations(mediaVersions, ({ one }) => ({
-  media: one(media, {
-    fields: [mediaVersions.mediaId],
-    references: [media.id],
-  }),
-  user: one(users, {
-    fields: [mediaVersions.createdBy],
-    references: [users.id],
-  }),
+  shipments: many(shipments),
 }));
 
 export const userAddressesRelations = relations(
@@ -293,6 +250,120 @@ export const userAddressesRelations = relations(
   }),
 );
 
+export const locationsRelations = relations(locations, ({ one, many }) => ({
+  location: one(locations, {
+    fields: [locations.provinceId],
+    references: [locations.id],
+    relationName: "locations_provinceId_locations_id",
+  }),
+  locations: many(locations, {
+    relationName: "locations_provinceId_locations_id",
+  }),
+  userAddresses_city: many(userAddresses, {
+    relationName: "userAddresses_city_locations_id",
+  }),
+  userAddresses_state: many(userAddresses, {
+    relationName: "userAddresses_state_locations_id",
+  }),
+}));
+
+export const mediaRelationsRelations = relations(
+  mediaRelationsTable,
+  ({ one }) => ({
+    media: one(media, {
+      fields: [mediaRelationsTable.mediaId],
+      references: [media.id],
+    }),
+  }),
+);
+
+export const mediaRelations = relations(media, ({ many }) => ({
+  mediaRelations: many(mediaRelationsTable),
+  mediaSetItems: many(mediaSetItems),
+  mediaTags: many(mediaTags),
+  mediaTranslations: many(mediaTranslations),
+  mediaVersions: many(mediaVersions),
+}));
+
+export const mediaSetItemsRelations = relations(mediaSetItems, ({ one }) => ({
+  mediaSet: one(mediaSets, {
+    fields: [mediaSetItems.mediaSetId],
+    references: [mediaSets.id],
+  }),
+  media: one(media, {
+    fields: [mediaSetItems.mediaId],
+    references: [media.id],
+  }),
+}));
+
+export const mediaSetsRelations = relations(mediaSets, ({ many }) => ({
+  mediaSetItems: many(mediaSetItems),
+}));
+
+export const mediaTagsRelations = relations(mediaTags, ({ one }) => ({
+  media: one(media, {
+    fields: [mediaTags.mediaId],
+    references: [media.id],
+  }),
+}));
+
+export const mediaTranslationsRelations = relations(
+  mediaTranslations,
+  ({ one }) => ({
+    media: one(media, {
+      fields: [mediaTranslations.mediaId],
+      references: [media.id],
+    }),
+  }),
+);
+
+export const mediaVersionsRelations = relations(mediaVersions, ({ one }) => ({
+  media: one(media, {
+    fields: [mediaVersions.mediaId],
+    references: [media.id],
+  }),
+  user: one(users, {
+    fields: [mediaVersions.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
+  productVariation: one(productVariants, {
+    fields: [orderItems.variantId],
+    references: [productVariants.id],
+  }),
+  refunds: many(refunds),
+  returnItems: many(returnItems),
+  shipmentItems: many(shipmentItems),
+}));
+
+export const productVariationsRelations = relations(
+  productVariants,
+  ({ one, many }) => ({
+    orderItems: many(orderItems),
+    product: one(products, {
+      fields: [productVariants.productId],
+      references: [products.id],
+    }),
+    productAttributeValues: many(productAttributeValues),
+    productBundleItems: many(productBundleItems),
+    productInventories: many(productInventory),
+    productPriceHistories: many(productPriceHistory),
+    productPrices: many(productPrices),
+    productPurchasePrices: many(productPurchasePrices),
+    wishlistItems: many(wishlistItems),
+  }),
+);
+
 export const paymentsRelations = relations(payments, ({ one, many }) => ({
   order: one(orders, {
     fields: [payments.orderId],
@@ -314,6 +385,29 @@ export const campaignsRelations = relations(campaigns, ({ many }) => ({
   campaignProducts: many(campaignProducts),
 }));
 
+export const policyBindingsRelations = relations(policyBindings, ({ one }) => ({
+  policy: one(policies, {
+    fields: [policyBindings.policyId],
+    references: [policies.id],
+  }),
+  abacResource: one(abacResources, {
+    fields: [policyBindings.resourceId],
+    references: [abacResources.id],
+  }),
+  abacAction: one(abacActions, {
+    fields: [policyBindings.actionId],
+    references: [abacActions.id],
+  }),
+}));
+
+export const abacResourcesRelations = relations(abacResources, ({ many }) => ({
+  policyBindings: many(policyBindings),
+}));
+
+export const abacActionsRelations = relations(abacActions, ({ many }) => ({
+  policyBindings: many(policyBindings),
+}));
+
 export const productAttributeValuesRelations = relations(
   productAttributeValues,
   ({ one }) => ({
@@ -321,9 +415,9 @@ export const productAttributeValuesRelations = relations(
       fields: [productAttributeValues.productId],
       references: [products.id],
     }),
-    productVariation: one(productVariations, {
+    productVariation: one(productVariants, {
       fields: [productAttributeValues.variationId],
-      references: [productVariations.id],
+      references: [productVariants.id],
     }),
     attribute: one(attributes, {
       fields: [productAttributeValues.attributeId],
@@ -332,22 +426,6 @@ export const productAttributeValuesRelations = relations(
     attributeValue: one(attributeValues, {
       fields: [productAttributeValues.attributeValueId],
       references: [attributeValues.id],
-    }),
-  }),
-);
-
-export const attributesRelations = relations(attributes, ({ many }) => ({
-  productAttributeValues: many(productAttributeValues),
-  attributeValues: many(attributeValues),
-}));
-
-export const attributeValuesRelations = relations(
-  attributeValues,
-  ({ one, many }) => ({
-    productAttributeValues: many(productAttributeValues),
-    attribute: one(attributes, {
-      fields: [attributeValues.attributeId],
-      references: [attributes.id],
     }),
   }),
 );
@@ -363,12 +441,30 @@ export const productBundlesRelations = relations(
   }),
 );
 
+export const productBundleItemsRelations = relations(
+  productBundleItems,
+  ({ one }) => ({
+    productBundle: one(productBundles, {
+      fields: [productBundleItems.bundleId],
+      references: [productBundles.id],
+    }),
+    product: one(products, {
+      fields: [productBundleItems.productId],
+      references: [products.id],
+    }),
+    productVariation: one(productVariants, {
+      fields: [productBundleItems.variationId],
+      references: [productVariants.id],
+    }),
+  }),
+);
+
 export const productInventoryRelations = relations(
   productInventory,
   ({ one }) => ({
-    productVariation: one(productVariations, {
+    productVariation: one(productVariants, {
       fields: [productInventory.variationId],
-      references: [productVariations.id],
+      references: [productVariants.id],
     }),
     warehouse: one(warehouses, {
       fields: [productInventory.warehouseId],
@@ -381,29 +477,29 @@ export const warehousesRelations = relations(warehouses, ({ many }) => ({
   productInventories: many(productInventory),
 }));
 
-export const productPricesRelations = relations(productPrices, ({ one }) => ({
-  productVariation: one(productVariations, {
-    fields: [productPrices.variationId],
-    references: [productVariations.id],
-  }),
-}));
-
 export const productPriceHistoryRelations = relations(
   productPriceHistory,
   ({ one }) => ({
-    productVariation: one(productVariations, {
+    productVariation: one(productVariants, {
       fields: [productPriceHistory.variationId],
-      references: [productVariations.id],
+      references: [productVariants.id],
     }),
   }),
 );
 
+export const productPricesRelations = relations(productPrices, ({ one }) => ({
+  productVariation: one(productVariants, {
+    fields: [productPrices.variationId],
+    references: [productVariants.id],
+  }),
+}));
+
 export const productPurchasePricesRelations = relations(
   productPurchasePrices,
   ({ one }) => ({
-    productVariation: one(productVariations, {
+    productVariation: one(productVariants, {
       fields: [productPurchasePrices.variationId],
-      references: [productVariations.id],
+      references: [productVariants.id],
     }),
     supplier: one(suppliers, {
       fields: [productPurchasePrices.supplierId],
@@ -415,16 +511,6 @@ export const productPurchasePricesRelations = relations(
 export const suppliersRelations = relations(suppliers, ({ many }) => ({
   productPurchasePrices: many(productPurchasePrices),
 }));
-
-export const productTranslationsRelations = relations(
-  productTranslations,
-  ({ one }) => ({
-    product: one(products, {
-      fields: [productTranslations.productId],
-      references: [products.id],
-    }),
-  }),
-);
 
 export const productRelationsRelations = relations(
   productRelations,
@@ -467,6 +553,10 @@ export const shippingMethodsRelations = relations(
   }),
 );
 
+export const shippingZonesRelations = relations(shippingZones, ({ many }) => ({
+  shippingMethods: many(shippingMethods),
+}));
+
 export const productStatusHistoryRelations = relations(
   productStatusHistory,
   ({ one }) => ({
@@ -477,6 +567,16 @@ export const productStatusHistoryRelations = relations(
     user: one(users, {
       fields: [productStatusHistory.changedBy],
       references: [users.id],
+    }),
+  }),
+);
+
+export const productTranslationsRelations = relations(
+  productTranslations,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productTranslations.productId],
+      references: [products.id],
     }),
   }),
 );
@@ -495,6 +595,89 @@ export const productVersionsRelations = relations(
   }),
 );
 
+export const promotionActionsRelations = relations(
+  promotionActions,
+  ({ one }) => ({
+    promotion: one(promotions, {
+      fields: [promotionActions.promotionId],
+      references: [promotions.id],
+    }),
+  }),
+);
+
+export const promotionsRelations = relations(promotions, ({ many }) => ({
+  promotionActions: many(promotionActions),
+  promotionConditions: many(promotionConditions),
+  promotionTargets: many(promotionTargets),
+  promotionUsages: many(promotionUsage),
+  promotionCampaignLinks: many(promotionCampaignLinks),
+}));
+
+export const promotionConditionsRelations = relations(
+  promotionConditions,
+  ({ one }) => ({
+    promotion: one(promotions, {
+      fields: [promotionConditions.promotionId],
+      references: [promotions.id],
+    }),
+  }),
+);
+
+export const promotionTargetsRelations = relations(
+  promotionTargets,
+  ({ one }) => ({
+    promotion: one(promotions, {
+      fields: [promotionTargets.promotionId],
+      references: [promotions.id],
+    }),
+  }),
+);
+
+export const promotionUsageRelations = relations(promotionUsage, ({ one }) => ({
+  promotion: one(promotions, {
+    fields: [promotionUsage.promotionId],
+    references: [promotions.id],
+  }),
+  user: one(users, {
+    fields: [promotionUsage.userId],
+    references: [users.id],
+  }),
+  order: one(orders, {
+    fields: [promotionUsage.orderId],
+    references: [orders.id],
+  }),
+}));
+
+export const refundsRelations = relations(refunds, ({ one }) => ({
+  payment: one(payments, {
+    fields: [refunds.paymentId],
+    references: [payments.id],
+  }),
+  orderItem: one(orderItems, {
+    fields: [refunds.orderItemId],
+    references: [orderItems.id],
+  }),
+}));
+
+export const returnsRelations = relations(returns, ({ one, many }) => ({
+  order: one(orders, {
+    fields: [returns.orderId],
+    references: [orders.id],
+  }),
+  returnItems: many(returnItems),
+}));
+
+export const returnItemsRelations = relations(returnItems, ({ one }) => ({
+  return: one(returns, {
+    fields: [returnItems.returnId],
+    references: [returns.id],
+  }),
+  orderItem: one(orderItems, {
+    fields: [returnItems.orderItemId],
+    references: [orderItems.id],
+  }),
+}));
+
 export const reviewsRelations = relations(reviews, ({ one, many }) => ({
   user: one(users, {
     fields: [reviews.userId],
@@ -509,33 +692,6 @@ export const reviewsRelations = relations(reviews, ({ one, many }) => ({
     references: [orders.id],
   }),
   reviewVotes: many(reviewVotes),
-}));
-
-export const shipmentItemsRelations = relations(shipmentItems, ({ one }) => ({
-  orderItem: one(orderItems, {
-    fields: [shipmentItems.orderItemId],
-    references: [orderItems.id],
-  }),
-  shipment: one(shipments, {
-    fields: [shipmentItems.shipmentId],
-    references: [shipments.id],
-  }),
-}));
-
-export const shipmentsRelations = relations(shipments, ({ one, many }) => ({
-  shipmentItems: many(shipmentItems),
-  order: one(orders, {
-    fields: [shipments.orderId],
-    references: [orders.id],
-  }),
-}));
-
-export const returnsRelations = relations(returns, ({ one, many }) => ({
-  order: one(orders, {
-    fields: [returns.orderId],
-    references: [orders.id],
-  }),
-  returnItems: many(returnItems),
 }));
 
 export const reviewVotesRelations = relations(reviewVotes, ({ one }) => ({
@@ -565,25 +721,23 @@ export const rolesRelations = relations(roles, ({ many }) => ({
   userRoles: many(userRoles),
 }));
 
-export const locationsRelations = relations(locations, ({ one, many }) => ({
-  userAddresses_city: many(userAddresses, {
-    relationName: "userAddresses_city_locations_id",
+export const shipmentItemsRelations = relations(shipmentItems, ({ one }) => ({
+  orderItem: one(orderItems, {
+    fields: [shipmentItems.orderItemId],
+    references: [orderItems.id],
   }),
-  userAddresses_state: many(userAddresses, {
-    relationName: "userAddresses_state_locations_id",
-  }),
-  location: one(locations, {
-    fields: [locations.provinceId],
-    references: [locations.id],
-    relationName: "locations_provinceId_locations_id",
-  }),
-  locations: many(locations, {
-    relationName: "locations_provinceId_locations_id",
+  shipment: one(shipments, {
+    fields: [shipmentItems.shipmentId],
+    references: [shipments.id],
   }),
 }));
 
-export const shippingZonesRelations = relations(shippingZones, ({ many }) => ({
-  shippingMethods: many(shippingMethods),
+export const shipmentsRelations = relations(shipments, ({ one, many }) => ({
+  shipmentItems: many(shipmentItems),
+  order: one(orders, {
+    fields: [shipments.orderId],
+    references: [orders.id],
+  }),
 }));
 
 export const userAttributesRelations = relations(userAttributes, ({ one }) => ({
@@ -619,6 +773,13 @@ export const walletsRelations = relations(wallets, ({ one, many }) => ({
   walletLedgers: many(walletLedger),
 }));
 
+export const walletLedgerRelations = relations(walletLedger, ({ one }) => ({
+  wallet: one(wallets, {
+    fields: [walletLedger.walletId],
+    references: [wallets.id],
+  }),
+}));
+
 export const wishlistsRelations = relations(wishlists, ({ one, many }) => ({
   user: one(users, {
     fields: [wishlists.userId],
@@ -636,170 +797,9 @@ export const wishlistItemsRelations = relations(wishlistItems, ({ one }) => ({
     fields: [wishlistItems.productId],
     references: [products.id],
   }),
-  productVariation: one(productVariations, {
+  productVariation: one(productVariants, {
     fields: [wishlistItems.variationId],
-    references: [productVariations.id],
-  }),
-}));
-
-export const categoryTranslationsRelations = relations(
-  categoryTranslations,
-  ({ one }) => ({
-    category: one(categories, {
-      fields: [categoryTranslations.categoryId],
-      references: [categories.id],
-    }),
-  }),
-);
-
-export const giftCardTransactionsRelations = relations(
-  giftCardTransactions,
-  ({ one }) => ({
-    giftCard: one(giftCards, {
-      fields: [giftCardTransactions.giftCardId],
-      references: [giftCards.id],
-    }),
-    order: one(orders, {
-      fields: [giftCardTransactions.orderId],
-      references: [orders.id],
-    }),
-  }),
-);
-
-export const giftCardsRelations = relations(giftCards, ({ many }) => ({
-  giftCardTransactions: many(giftCardTransactions),
-}));
-
-export const mediaTranslationsRelations = relations(
-  mediaTranslations,
-  ({ one }) => ({
-    media: one(media, {
-      fields: [mediaTranslations.mediaId],
-      references: [media.id],
-    }),
-  }),
-);
-
-export const policyBindingsRelations = relations(policyBindings, ({ one }) => ({
-  policy: one(policies, {
-    fields: [policyBindings.policyId],
-    references: [policies.id],
-  }),
-  abacResource: one(abacResources, {
-    fields: [policyBindings.resourceId],
-    references: [abacResources.id],
-  }),
-  abacAction: one(abacActions, {
-    fields: [policyBindings.actionId],
-    references: [abacActions.id],
-  }),
-}));
-
-export const abacResourcesRelations = relations(abacResources, ({ many }) => ({
-  policyBindings: many(policyBindings),
-}));
-
-export const abacActionsRelations = relations(abacActions, ({ many }) => ({
-  policyBindings: many(policyBindings),
-}));
-
-export const productBundleItemsRelations = relations(
-  productBundleItems,
-  ({ one }) => ({
-    productBundle: one(productBundles, {
-      fields: [productBundleItems.bundleId],
-      references: [productBundles.id],
-    }),
-    product: one(products, {
-      fields: [productBundleItems.productId],
-      references: [products.id],
-    }),
-    productVariation: one(productVariations, {
-      fields: [productBundleItems.variationId],
-      references: [productVariations.id],
-    }),
-  }),
-);
-
-export const refundsRelations = relations(refunds, ({ one }) => ({
-  payment: one(payments, {
-    fields: [refunds.paymentId],
-    references: [payments.id],
-  }),
-  orderItem: one(orderItems, {
-    fields: [refunds.orderItemId],
-    references: [orderItems.id],
-  }),
-}));
-
-export const returnItemsRelations = relations(returnItems, ({ one }) => ({
-  return: one(returns, {
-    fields: [returnItems.returnId],
-    references: [returns.id],
-  }),
-  orderItem: one(orderItems, {
-    fields: [returnItems.orderItemId],
-    references: [orderItems.id],
-  }),
-}));
-
-export const promotionTargetsRelations = relations(
-  promotionTargets,
-  ({ one }) => ({
-    promotion: one(promotions, {
-      fields: [promotionTargets.promotionId],
-      references: [promotions.id],
-    }),
-  }),
-);
-
-export const promotionsRelations = relations(promotions, ({ many }) => ({
-  promotionTargets: many(promotionTargets),
-  promotionConditions: many(promotionConditions),
-  promotionActions: many(promotionActions),
-  promotionUsages: many(promotionUsage),
-  promotionCampaignLinks: many(promotionCampaignLinks),
-}));
-
-export const walletLedgerRelations = relations(walletLedger, ({ one }) => ({
-  wallet: one(wallets, {
-    fields: [walletLedger.walletId],
-    references: [wallets.id],
-  }),
-}));
-
-export const promotionConditionsRelations = relations(
-  promotionConditions,
-  ({ one }) => ({
-    promotion: one(promotions, {
-      fields: [promotionConditions.promotionId],
-      references: [promotions.id],
-    }),
-  }),
-);
-
-export const promotionActionsRelations = relations(
-  promotionActions,
-  ({ one }) => ({
-    promotion: one(promotions, {
-      fields: [promotionActions.promotionId],
-      references: [promotions.id],
-    }),
-  }),
-);
-
-export const promotionUsageRelations = relations(promotionUsage, ({ one }) => ({
-  promotion: one(promotions, {
-    fields: [promotionUsage.promotionId],
-    references: [promotions.id],
-  }),
-  user: one(users, {
-    fields: [promotionUsage.userId],
-    references: [users.id],
-  }),
-  order: one(orders, {
-    fields: [promotionUsage.orderId],
-    references: [orders.id],
+    references: [productVariants.id],
   }),
 }));
 
@@ -814,6 +814,27 @@ export const campaignProductsRelations = relations(
       fields: [campaignProducts.productId],
       references: [products.id],
     }),
+  }),
+);
+
+export const promotionCampaignLinksRelations = relations(
+  promotionCampaignLinks,
+  ({ one }) => ({
+    promotionCampaign: one(promotionCampaigns, {
+      fields: [promotionCampaignLinks.campaignId],
+      references: [promotionCampaigns.id],
+    }),
+    promotion: one(promotions, {
+      fields: [promotionCampaignLinks.promotionId],
+      references: [promotions.id],
+    }),
+  }),
+);
+
+export const promotionCampaignsRelations = relations(
+  promotionCampaigns,
+  ({ many }) => ({
+    promotionCampaignLinks: many(promotionCampaignLinks),
   }),
 );
 
@@ -845,27 +866,6 @@ export const userRolesRelations = relations(userRoles, ({ one }) => ({
     references: [roles.id],
   }),
 }));
-
-export const promotionCampaignLinksRelations = relations(
-  promotionCampaignLinks,
-  ({ one }) => ({
-    promotionCampaign: one(promotionCampaigns, {
-      fields: [promotionCampaignLinks.campaignId],
-      references: [promotionCampaigns.id],
-    }),
-    promotion: one(promotions, {
-      fields: [promotionCampaignLinks.promotionId],
-      references: [promotions.id],
-    }),
-  }),
-);
-
-export const promotionCampaignsRelations = relations(
-  promotionCampaigns,
-  ({ many }) => ({
-    promotionCampaignLinks: many(promotionCampaignLinks),
-  }),
-);
 
 export const collectionProductsRelations = relations(
   collectionProducts,
