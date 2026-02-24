@@ -1,4 +1,4 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { campaigns } from "../marketing/campaigns";
 
 export const policies = pgTable(
@@ -17,7 +17,9 @@ export const policies = pgTable(
       mode: "string",
     }),
     validTo: t.timestamp("valid_to", { withTimezone: true, mode: "string" }),
-    campaignId: t.bigint("campaign_id", { mode: "number" }),
+    campaignId: t
+      .bigint("campaign_id", { mode: "number" })
+      .references(() => campaigns.id, { onDelete: "set null" }),
     appliesToSubject: t.jsonb("applies_to_subject"),
     appliesToResource: t.jsonb("applies_to_resource"),
     appliesToContext: t.jsonb("applies_to_context"),
@@ -48,10 +50,5 @@ export const policies = pgTable(
       "btree",
       table.type.asc().nullsLast().op("text_ops"),
     ),
-    foreignKey({
-      columns: [table.campaignId],
-      foreignColumns: [campaigns.id],
-      name: "fk_policies_campaign",
-    }).onDelete("set null"),
   ],
 );

@@ -1,10 +1,4 @@
-import {
-  check,
-  foreignKey,
-  index,
-  pgTable,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { check, index, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { sql } from "drizzle-orm";
 
@@ -12,7 +6,10 @@ export const userAttributes = pgTable(
   "user_attributes",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    userId: t.bigint("user_id", { mode: "number" }).notNull(),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
     key: t.varchar({ length: 100 }).notNull(),
     valueText: t.text("value_text"),
     valueNum: t.numeric("value_num", { precision: 20, scale: 4 }),
@@ -50,11 +47,6 @@ export const userAttributes = pgTable(
       )
       .where(sql`(value_text IS NOT NULL)`),
     uniqueIndex("uq_user_attributes_user_key").on(table.userId, table.key),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_user_attributes_user",
-    }).onDelete("cascade"),
     check(
       "chk_user_attributes_value",
       sql`((value_text IS NOT NULL) AND (value_num IS NULL) AND (value_bool IS NULL) AND (value_json IS NULL)) OR ((value_text IS NULL) AND (value_num IS NOT NULL) AND (value_bool IS NULL) AND (value_json IS NULL)) OR ((value_text IS NULL) AND (value_num IS NULL) AND (value_bool IS NOT NULL) AND (value_json IS NULL)) OR ((value_text IS NULL) AND (value_num IS NULL) AND (value_bool IS NULL) AND (value_json IS NOT NULL))`,

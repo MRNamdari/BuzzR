@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { check, index, pgTable } from "drizzle-orm/pg-core";
 import { products } from "../catalog/products";
 import { orders } from "../orders/orders";
 import { users } from "./users";
@@ -8,9 +8,17 @@ export const reviews = pgTable(
   "reviews",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    userId: t.bigint("user_id", { mode: "number" }).notNull(),
-    productId: t.bigint("product_id", { mode: "number" }).notNull(),
-    orderId: t.bigint("order_id", { mode: "number" }),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    productId: t
+      .bigint("product_id", { mode: "number" })
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    orderId: t
+      .bigint("order_id", { mode: "number" })
+      .references(() => orders.id, { onDelete: "set null" }),
     rating: t.integer().notNull(),
     title: t.varchar({ length: 255 }),
     body: t.text(),
@@ -29,21 +37,6 @@ export const reviews = pgTable(
       "btree",
       table.userId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_reviews_user",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [table.productId],
-      foreignColumns: [products.id],
-      name: "fk_reviews_product",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [table.orderId],
-      foreignColumns: [orders.id],
-      name: "fk_reviews_order",
-    }).onDelete("set null"),
     check("reviews_rating_check", sql`(rating >= 1) AND (rating <= 5)`),
   ],
 );

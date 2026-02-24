@@ -1,12 +1,15 @@
 import { sql } from "drizzle-orm";
-import { check, foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { check, index, pgTable } from "drizzle-orm/pg-core";
 import { wallets } from "./wallets";
 
 export const walletLedger = pgTable(
   "wallet_ledger",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    walletId: t.bigint("wallet_id", { mode: "number" }).notNull(),
+    walletId: t
+      .bigint("wallet_id", { mode: "number" })
+      .references(() => wallets.id, { onDelete: "cascade" })
+      .notNull(),
     type: t.varchar({ length: 20 }).notNull(),
     sourceType: t.varchar("source_type", { length: 50 }).notNull(),
     sourceId: t.bigint("source_id", { mode: "number" }),
@@ -22,11 +25,6 @@ export const walletLedger = pgTable(
       "btree",
       table.walletId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.walletId],
-      foreignColumns: [wallets.id],
-      name: "fk_wallet_ledger_wallet",
-    }).onDelete("cascade"),
     check(
       "chk_wallet_ledger_type",
       sql`(type)::text = ANY ((ARRAY['credit'::character varying, 'debit'::character varying, 'adjustment'::character varying])::text[])`,

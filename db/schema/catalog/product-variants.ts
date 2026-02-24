@@ -1,11 +1,14 @@
-import { foreignKey, index, pgTable, unique } from "drizzle-orm/pg-core";
+import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { products } from "./products";
 
 export const productVariants = pgTable(
   "product_variants",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    productId: t.bigint("product_id", { mode: "number" }).notNull(),
+    productId: t
+      .bigint("product_id", { mode: "number" })
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
     sku: t.varchar({ length: 100 }),
     name: t.varchar({ length: 255 }),
     basePrice: t.numeric("base_price", { precision: 10, scale: 2 }).notNull(),
@@ -31,11 +34,6 @@ export const productVariants = pgTable(
       "btree",
       table.productId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.productId],
-      foreignColumns: [products.id],
-      name: "fk_product_variants_product",
-    }).onDelete("cascade"),
     unique("product_variants_sku_key").on(table.sku),
   ],
 );

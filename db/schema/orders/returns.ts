@@ -5,7 +5,10 @@ export const returns = pgTable(
   "returns",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    orderId: t.bigint("order_id", { mode: "number" }).notNull(),
+    orderId: t
+      .bigint("order_id", { mode: "number" })
+      .references(() => orders.id, { onDelete: "cascade" })
+      .notNull(),
     status: t.varchar({ length: 20 }).notNull(),
     reason: t.text(),
     createdAt: t
@@ -18,10 +21,5 @@ export const returns = pgTable(
       "btree",
       table.orderId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.orderId],
-      foreignColumns: [orders.id],
-      name: "fk_returns_order",
-    }).onDelete("cascade"),
   ],
 );

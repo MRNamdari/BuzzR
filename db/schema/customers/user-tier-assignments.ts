@@ -1,12 +1,19 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { userTiers } from "./user-tiers";
 
 export const userTierAssignments = pgTable(
   "user_tier_assignments",
   (t) => ({
-    userId: t.bigint("user_id", { mode: "number" }).primaryKey().notNull(),
-    tierId: t.bigint("tier_id", { mode: "number" }).notNull(),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "cascade" })
+      .primaryKey()
+      .notNull(),
+    tierId: t
+      .bigint("tier_id", { mode: "number" })
+      .references(() => userTiers.id, { onDelete: "cascade" })
+      .notNull(),
     assignedAt: t
       .timestamp("assigned_at", { withTimezone: true, mode: "string" })
       .defaultNow()
@@ -25,15 +32,5 @@ export const userTierAssignments = pgTable(
       "btree",
       table.tierId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_user_tier_assignments_user",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [table.tierId],
-      foreignColumns: [userTiers.id],
-      name: "fk_user_tier_assignments_tier",
-    }).onDelete("cascade"),
   ],
 );

@@ -1,11 +1,13 @@
-import { pgTable, index, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, index } from "drizzle-orm/pg-core";
 import { users } from "../customers/users";
 
 export const carts = pgTable(
   "carts",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey(),
-    userId: t.bigint("user_id", { mode: "number" }),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "set null" }),
     sessionId: t.varchar("session_id", { length: 255 }),
     isActive: t.boolean("is_active").default(true).notNull(),
     createdAt: t
@@ -26,10 +28,5 @@ export const carts = pgTable(
   (table) => [
     index("idx_carts_user").on(table.userId),
     index("idx_carts_session").on(table.sessionId),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_carts_user",
-    }).onDelete("set null"),
   ],
 );

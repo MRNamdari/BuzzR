@@ -1,11 +1,13 @@
-import { foreignKey, pgTable, unique } from "drizzle-orm/pg-core";
+import { pgTable, unique } from "drizzle-orm/pg-core";
 import { shippingZones } from "./shipping-zones";
 
 export const shippingMethods = pgTable(
   "shipping_methods",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    zoneId: t.bigint("zone_id", { mode: "number" }),
+    zoneId: t
+      .bigint("zone_id", { mode: "number" })
+      .references(() => shippingZones.id, { onDelete: "set null" }),
     name: t.varchar({ length: 255 }).notNull(),
     code: t.varchar({ length: 100 }).notNull(),
     isActive: t.boolean("is_active").default(true).notNull(),
@@ -24,12 +26,5 @@ export const shippingMethods = pgTable(
       .defaultNow()
       .notNull(),
   }),
-  (table) => [
-    foreignKey({
-      columns: [table.zoneId],
-      foreignColumns: [shippingZones.id],
-      name: "fk_shipping_methods_zone",
-    }).onDelete("set null"),
-    unique("shipping_methods_code_key").on(table.code),
-  ],
+  (table) => [unique("shipping_methods_code_key").on(table.code)],
 );

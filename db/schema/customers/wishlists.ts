@@ -1,11 +1,14 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const wishlists = pgTable(
   "wishlists",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    userId: t.bigint("user_id", { mode: "number" }).notNull(),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
     name: t.varchar({ length: 255 }).default("Default").notNull(),
     isDefault: t.boolean("is_default").default(false).notNull(),
     createdAt: t
@@ -18,10 +21,5 @@ export const wishlists = pgTable(
       "btree",
       table.userId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_wishlists_user",
-    }).onDelete("cascade"),
   ],
 );

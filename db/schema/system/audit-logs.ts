@@ -1,11 +1,13 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { users } from "../customers/users";
 
 export const auditLogs = pgTable(
   "audit_logs",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    actorUserId: t.bigint("actor_user_id", { mode: "number" }),
+    actorUserId: t
+      .bigint("actor_user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "set null" }),
     entityType: t.varchar("entity_type", { length: 50 }).notNull(),
     entityId: t.bigint("entity_id", { mode: "number" }),
     action: t.varchar({ length: 50 }).notNull(),
@@ -21,10 +23,5 @@ export const auditLogs = pgTable(
       table.actorUserId.asc().nullsLast().op("int8_ops"),
     ),
     index("idx_audit_logs_entity").on(table.entityType, table.entityId),
-    foreignKey({
-      columns: [table.actorUserId],
-      foreignColumns: [users.id],
-      name: "fk_audit_logs_actor",
-    }).onDelete("set null"),
   ],
 );

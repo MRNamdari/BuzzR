@@ -1,11 +1,14 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { orders } from "./orders";
 
 export const shipments = pgTable(
   "shipments",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    orderId: t.bigint("order_id", { mode: "number" }).notNull(),
+    orderId: t
+      .bigint("order_id", { mode: "number" })
+      .references(() => orders.id, { onDelete: "cascade" })
+      .notNull(),
     carrier: t.varchar({ length: 100 }),
     trackingNumber: t.varchar("tracking_number", { length: 255 }),
     status: t.varchar({ length: 20 }).notNull(),
@@ -27,10 +30,5 @@ export const shipments = pgTable(
       "btree",
       table.orderId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.orderId],
-      foreignColumns: [orders.id],
-      name: "fk_order_id",
-    }).onDelete("cascade"),
   ],
 );

@@ -1,11 +1,13 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
 
 export const products = pgTable(
   "products",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    categoryId: t.bigint("category_id", { mode: "number" }),
+    categoryId: t
+      .bigint("category_id", { mode: "number" })
+      .references(() => categories.id, { onDelete: "set null" }),
     productType: t
       .varchar("product_type", { length: 20 })
       .default("simple")
@@ -62,10 +64,5 @@ export const products = pgTable(
       "btree",
       table.productType.asc().nullsLast().op("text_ops"),
     ),
-    foreignKey({
-      columns: [table.categoryId],
-      foreignColumns: [categories.id],
-      name: "fk_products_category",
-    }).onDelete("set null"),
   ],
 );

@@ -597,13 +597,14 @@ CREATE TABLE "order_items" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"order_id" bigint NOT NULL,
 	"product_id" bigint NOT NULL,
-	"variation_id" bigint,
+	"variant_id" bigint,
 	"quantity" integer NOT NULL,
 	"unit_price" numeric(10, 2) NOT NULL,
 	"purchase_price" numeric(10, 2),
 	"tax_amount" numeric(10, 2) DEFAULT '0' NOT NULL,
 	"discount_amount" numeric(10, 2) DEFAULT '0' NOT NULL,
 	"total_price" numeric(10, 2) NOT NULL,
+	"description" varchar(2000),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -619,6 +620,7 @@ CREATE TABLE "orders" (
 	"total_amount" numeric(10, 2) NOT NULL,
 	"billing_address_id" bigint,
 	"shipping_address_id" bigint,
+	"notes" varchar(2000),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -838,7 +840,7 @@ ALTER TABLE "gift_card_transactions" ADD CONSTRAINT "fk_gift_card_id" FOREIGN KE
 ALTER TABLE "gift_card_transactions" ADD CONSTRAINT "fk_gift_card_order_id" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "fk_order_items_order" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "fk_order_items_product" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "order_items" ADD CONSTRAINT "fk_order_items_variant" FOREIGN KEY ("variation_id") REFERENCES "public"."product_variants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order_items" ADD CONSTRAINT "fk_order_items_variant" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "fk_orders_user" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "fk_orders_billing_address" FOREIGN KEY ("billing_address_id") REFERENCES "public"."user_addresses"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "fk_orders_shipping_address" FOREIGN KEY ("shipping_address_id") REFERENCES "public"."user_addresses"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

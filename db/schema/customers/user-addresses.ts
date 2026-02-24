@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { check, index, pgTable } from "drizzle-orm/pg-core";
 import { locations } from "../logistics/locations";
 import { users } from "./users";
 
@@ -7,14 +7,23 @@ export const userAddresses = pgTable(
   "user_addresses",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    userId: t.bigint("user_id", { mode: "number" }).notNull(),
+    userId: t
+      .bigint("user_id", { mode: "number" })
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
     type: t.varchar({ length: 20 }).notNull(),
     isDefault: t.boolean("is_default").default(false).notNull(),
     fullName: t.varchar("full_name", { length: 200 }),
     line1: t.varchar({ length: 255 }).notNull(),
     line2: t.varchar({ length: 255 }),
-    city: t.bigint({ mode: "number" }).notNull(),
-    state: t.bigint({ mode: "number" }).notNull(),
+    city: t
+      .bigint({ mode: "number" })
+      .references(() => locations.id, { onDelete: "set null" })
+      .notNull(),
+    state: t
+      .bigint({ mode: "number" })
+      .references(() => locations.id, { onDelete: "set null" })
+      .notNull(),
     postalCode: t.varchar("postal_code", { length: 20 }).notNull(),
     country: t.varchar({ length: 2 }).notNull(),
     receiverName: t
@@ -37,21 +46,6 @@ export const userAddresses = pgTable(
       "btree",
       table.userId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "fk_user_addresses_user",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [table.city],
-      foreignColumns: [locations.id],
-      name: "fk_user_addresses_city",
-    }).onDelete("set null"),
-    foreignKey({
-      columns: [table.state],
-      foreignColumns: [locations.id],
-      name: "fk_user_addresses_state",
-    }).onDelete("set null"),
     check(
       "chk_address_type",
       sql`(type)::text = ANY ((ARRAY['billing'::character varying, 'shipping'::character varying, 'both'::character varying])::text[])`,

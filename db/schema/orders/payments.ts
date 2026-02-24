@@ -5,7 +5,10 @@ export const payments = pgTable(
   "payments",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    orderId: t.bigint("order_id", { mode: "number" }).notNull(),
+    orderId: t
+      .bigint("order_id", { mode: "number" })
+      .references(() => orders.id, { onDelete: "cascade" })
+      .notNull(),
     provider: t.varchar({ length: 50 }).notNull(),
     amount: t.numeric({ precision: 10, scale: 2 }).notNull(),
     currency: t.varchar({ length: 3 }).notNull(),
@@ -25,10 +28,5 @@ export const payments = pgTable(
       "btree",
       table.status.asc().nullsLast().op("text_ops"),
     ),
-    foreignKey({
-      columns: [table.orderId],
-      foreignColumns: [orders.id],
-      name: "fk_payments_order",
-    }).onDelete("cascade"),
   ],
 );

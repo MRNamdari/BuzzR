@@ -1,6 +1,6 @@
 {
-  "id": "c4863b24-492f-4863-88d2-ca541477846e",
-  "prevId": "f48da820-ed0c-4e91-92c4-d754b185564f",
+  "id": "cc657bf5-6b02-4872-8aa3-90f543d5a93d",
+  "prevId": "ecaebfb2-3c3f-4e22-ada5-3971ce441b28",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1256,8 +1256,8 @@
         }
       },
       "foreignKeys": {
-        "fk_product_purchase_prices_variants_id": {
-          "name": "fk_product_purchase_prices_variants_id",
+        "product_purchase_prices_variation_id_product_variants_id_fk": {
+          "name": "product_purchase_prices_variation_id_product_variants_id_fk",
           "tableFrom": "product_purchase_prices",
           "tableTo": "product_variants",
           "columnsFrom": [
@@ -1269,8 +1269,8 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "fk_product_purchase_prices_supplier_id": {
-          "name": "fk_product_purchase_prices_supplier_id",
+        "product_purchase_prices_supplier_id_suppliers_id_fk": {
+          "name": "product_purchase_prices_supplier_id_suppliers_id_fk",
           "tableFrom": "product_purchase_prices",
           "tableTo": "suppliers",
           "columnsFrom": [
@@ -5451,21 +5451,8 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "fk_cart_items_card": {
-          "name": "fk_cart_items_card",
-          "tableFrom": "cart_items",
-          "tableTo": "carts",
-          "columnsFrom": [
-            "cart_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_cart_items_product": {
-          "name": "fk_cart_items_product",
+        "cart_items_product_id_products_id_fk": {
+          "name": "cart_items_product_id_products_id_fk",
           "tableFrom": "cart_items",
           "tableTo": "products",
           "columnsFrom": [
@@ -5477,8 +5464,8 @@
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "fk_cart_items_variant": {
-          "name": "fk_cart_items_variant",
+        "cart_items_variant_id_product_variants_id_fk": {
+          "name": "cart_items_variant_id_product_variants_id_fk",
           "tableFrom": "cart_items",
           "tableTo": "product_variants",
           "columnsFrom": [

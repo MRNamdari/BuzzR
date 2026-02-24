@@ -1,11 +1,14 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { media } from "./media";
 
 export const mediaRelationsTable = pgTable(
   "media_relations",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    mediaId: t.bigint("media_id", { mode: "number" }).notNull(),
+    mediaId: t
+      .bigint("media_id", { mode: "number" })
+      .references(() => media.id, { onDelete: "cascade" })
+      .notNull(),
     entityType: t.varchar("entity_type", { length: 50 }).notNull(),
     entityId: t.bigint("entity_id", { mode: "number" }).notNull(),
     role: t.varchar({ length: 50 }).default("gallery").notNull(),
@@ -22,10 +25,5 @@ export const mediaRelationsTable = pgTable(
       "btree",
       table.mediaId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [table.mediaId],
-      foreignColumns: [media.id],
-      name: "fk_media_relations_media",
-    }).onDelete("cascade"),
   ],
 );

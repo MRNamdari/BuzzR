@@ -1,11 +1,14 @@
-import { foreignKey, index, pgTable, unique } from "drizzle-orm/pg-core";
+import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
 
 export const categoryTranslations = pgTable(
   "category_translations",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    categoryId: t.bigint("category_id", { mode: "number" }).notNull(),
+    categoryId: t
+      .bigint("category_id", { mode: "number" })
+      .references(() => categories.id, { onDelete: "cascade" })
+      .notNull(),
     locale: t.varchar({ length: 10 }).notNull(),
     name: t.varchar({ length: 100 }).notNull(),
     slug: t.varchar({ length: 100 }).notNull(),
@@ -19,11 +22,6 @@ export const categoryTranslations = pgTable(
       "btree",
       table.locale.asc().nullsLast().op("text_ops"),
     ),
-    foreignKey({
-      columns: [table.categoryId],
-      foreignColumns: [categories.id],
-      name: "fk_category_translations_category",
-    }).onDelete("cascade"),
     unique("category_translations_category_id_locale_key").on(
       table.categoryId,
       table.locale,

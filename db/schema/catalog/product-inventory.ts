@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, foreignKey, index, pgTable, unique } from "drizzle-orm/pg-core";
+import { check, index, pgTable, unique } from "drizzle-orm/pg-core";
 import { productVariants } from "./product-variants";
 import { warehouses } from "../logistics/warehouses";
 
@@ -7,8 +7,13 @@ export const productInventory = pgTable(
   "product_inventory",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    variationId: t.bigint("variation_id", { mode: "number" }).notNull(),
-    warehouseId: t.bigint("warehouse_id", { mode: "number" }),
+    variationId: t
+      .bigint("variation_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "cascade" })
+      .notNull(),
+    warehouseId: t
+      .bigint("warehouse_id", { mode: "number" })
+      .references(() => warehouses.id, { onDelete: "set null" }),
     stockQuantity: t.integer("stock_quantity").default(0).notNull(),
     stockReserved: t.integer("stock_reserved").default(0).notNull(),
     stockThreshold: t.integer("stock_threshold").default(0).notNull(),
@@ -26,16 +31,6 @@ export const productInventory = pgTable(
       "btree",
       t.warehouseId.asc().nullsLast().op("int8_ops"),
     ),
-    foreignKey({
-      columns: [t.variationId],
-      foreignColumns: [productVariants.id],
-      name: "fk_product_inventory_variant",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [t.warehouseId],
-      foreignColumns: [warehouses.id],
-      name: "fk_product_inventory_warehouse",
-    }).onDelete("set null"),
     unique("product_inventory_variation_id_warehouse_id_key").on(
       t.variationId,
       t.warehouseId,

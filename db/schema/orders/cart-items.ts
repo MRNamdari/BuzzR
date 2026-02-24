@@ -1,4 +1,4 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { carts } from "./carts";
 import { products, productVariants } from "../schema";
 
@@ -10,8 +10,13 @@ export const cartItems = pgTable(
       .bigint("cart_id", { mode: "number" })
       .references(() => carts.id, { onDelete: "cascade" })
       .notNull(),
-    productId: t.bigint("product_id", { mode: "number" }).notNull(),
-    variantId: t.bigint("variant_id", { mode: "number" }),
+    productId: t
+      .bigint("product_id", { mode: "number" })
+      .references(() => products.id, { onDelete: "restrict" })
+      .notNull(),
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "restrict" }),
     quantity: t.integer("quantity").notNull().default(1),
     unitPrice: t.numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
     createdAt: t
@@ -22,20 +27,5 @@ export const cartItems = pgTable(
   (table) => [
     index("idx_cart_items_cart").on(table.cartId),
     index("idx_cart_items_product").on(table.productId),
-    foreignKey({
-      columns: [table.cartId],
-      foreignColumns: [carts.id],
-      name: "fk_cart_items_card",
-    }),
-    foreignKey({
-      columns: [table.productId],
-      foreignColumns: [products.id],
-      name: "fk_cart_items_product",
-    }).onDelete("restrict"),
-    foreignKey({
-      columns: [table.variantId],
-      foreignColumns: [productVariants.id],
-      name: "fk_cart_items_variant",
-    }).onDelete("restrict"),
   ],
 );
