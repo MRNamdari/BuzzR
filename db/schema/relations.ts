@@ -453,7 +453,7 @@ export const productBundleItemsRelations = relations(
       references: [products.id],
     }),
     productVariation: one(productVariants, {
-      fields: [productBundleItems.variationId],
+      fields: [productBundleItems.variantId],
       references: [productVariants.id],
     }),
   }),
@@ -481,7 +481,7 @@ export const productPriceHistoryRelations = relations(
   productPriceHistory,
   ({ one }) => ({
     productVariation: one(productVariants, {
-      fields: [productPriceHistory.variationId],
+      fields: [productPriceHistory.variantId],
       references: [productVariants.id],
     }),
   }),
@@ -489,7 +489,7 @@ export const productPriceHistoryRelations = relations(
 
 export const productPricesRelations = relations(productPrices, ({ one }) => ({
   productVariation: one(productVariants, {
-    fields: [productPrices.variationId],
+    fields: [productPrices.variantId],
     references: [productVariants.id],
   }),
 }));
@@ -498,7 +498,7 @@ export const productPurchasePricesRelations = relations(
   productPurchasePrices,
   ({ one }) => ({
     productVariation: one(productVariants, {
-      fields: [productPurchasePrices.variationId],
+      fields: [productPurchasePrices.variantId],
       references: [productVariants.id],
     }),
     supplier: one(suppliers, {

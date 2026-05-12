@@ -1,5 +1,6 @@
 import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
+import { locale } from "../system/settings";
 
 export const categoryTranslations = pgTable(
   "category_translations",
@@ -9,7 +10,10 @@ export const categoryTranslations = pgTable(
       .bigint("category_id", { mode: "number" })
       .references(() => categories.id, { onDelete: "cascade" })
       .notNull(),
-    locale: t.varchar({ length: 10 }).notNull(),
+    locale: t
+      .bigint({ mode: "number" })
+      .references(() => locale.id, { onDelete: "cascade" })
+      .notNull(),
     name: t.varchar({ length: 100 }).notNull(),
     slug: t.varchar({ length: 100 }).notNull(),
     description: t.text(),
@@ -20,7 +24,7 @@ export const categoryTranslations = pgTable(
   (table) => [
     index("idx_category_translations_locale").using(
       "btree",
-      table.locale.asc().nullsLast().op("text_ops"),
+      table.locale.asc().nullsLast().op("int8_ops"),
     ),
     unique("category_translations_category_id_locale_key").on(
       table.categoryId,

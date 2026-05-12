@@ -5,8 +5,6 @@ export const userTiers = pgTable(
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
     code: t.varchar({ length: 50 }).notNull(),
-    name: t.varchar({ length: 100 }).notNull(),
-    description: t.text(),
     priority: t.integer().notNull(),
     createdAt: t
       .timestamp("created_at", { withTimezone: true, mode: "string" })

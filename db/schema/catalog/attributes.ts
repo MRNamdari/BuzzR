@@ -1,4 +1,5 @@
 import { pgTable, unique } from "drizzle-orm/pg-core";
+import { AttributeTypeEnum } from "../enums";
 
 export const attributes = pgTable(
   "attributes",
@@ -6,7 +7,7 @@ export const attributes = pgTable(
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
     code: t.varchar({ length: 100 }).notNull(),
     name: t.varchar({ length: 100 }).notNull(),
-    type: t.varchar({ length: 20 }).notNull(),
+    type: AttributeTypeEnum("type").notNull(),
     createdAt: t
       .timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()

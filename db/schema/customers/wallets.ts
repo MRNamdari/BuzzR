@@ -1,5 +1,6 @@
 import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { users } from "./users";
+import { CurrencyEnum } from "../enums";
 
 export const wallets = pgTable(
   "wallets",
@@ -9,7 +10,7 @@ export const wallets = pgTable(
       .bigint("user_id", { mode: "number" })
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    currency: t.varchar({ length: 3 }).notNull(),
+    currency: CurrencyEnum().default("IRR").notNull(),
     currentBalance: t
       .numeric("current_balance", { precision: 10, scale: 2 })
       .default("0")

@@ -1,5 +1,6 @@
 import { index, pgTable } from "drizzle-orm/pg-core";
 import { media } from "./media";
+import { EntityTypeEnum } from "../enums";
 
 export const mediaRelationsTable = pgTable(
   "media_relations",
@@ -9,7 +10,7 @@ export const mediaRelationsTable = pgTable(
       .bigint("media_id", { mode: "number" })
       .references(() => media.id, { onDelete: "cascade" })
       .notNull(),
-    entityType: t.varchar("entity_type", { length: 50 }).notNull(),
+    entityType: EntityTypeEnum().notNull(),
     entityId: t.bigint("entity_id", { mode: "number" }).notNull(),
     role: t.varchar({ length: 50 }).default("gallery").notNull(),
     position: t.integer().default(0).notNull(),

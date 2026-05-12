@@ -1,6 +1,7 @@
 import { pgTable, primaryKey } from "drizzle-orm/pg-core";
 import { products } from "../catalog/products";
 import { users } from "./users";
+import { productVariants } from "../schema";
 
 export const favorites = pgTable(
   "favorites",
@@ -13,6 +14,9 @@ export const favorites = pgTable(
       .bigint("product_id", { mode: "number" })
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "set null" }),
     createdAt: t
       .timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()

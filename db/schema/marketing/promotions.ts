@@ -4,9 +4,6 @@ export const promotions = pgTable(
   "promotions",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    code: t.varchar({ length: 100 }),
-    name: t.varchar({ length: 255 }).notNull(),
-    description: t.text(),
     type: t.varchar({ length: 50 }).notNull(),
     discountType: t.varchar("discount_type", { length: 20 }),
     discountValue: t.numeric("discount_value", { precision: 10, scale: 2 }),
@@ -35,6 +32,5 @@ export const promotions = pgTable(
       table.startsAt,
       table.endsAt,
     ),
-    unique("promotions_code_key").on(table.code),
   ],
 );

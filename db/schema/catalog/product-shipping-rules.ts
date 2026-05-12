@@ -1,6 +1,7 @@
 import { pgTable } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { shippingMethods } from "../logistics/shipping-methods";
+import { productVariants } from "./product-variants";
 
 export const productShippingRules = pgTable("product_shipping_rules", (t) => ({
   id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
@@ -8,6 +9,9 @@ export const productShippingRules = pgTable("product_shipping_rules", (t) => ({
     .bigint("product_id", { mode: "number" })
     .references(() => products.id, { onDelete: "cascade" })
     .notNull(),
+  variantId: t
+    .bigint("product_variant_id", { mode: "number" })
+    .references(() => productVariants.id, { onDelete: "cascade" }),
   shippingMethodId: t
     .bigint("shipping_method_id", { mode: "number" })
     .references(() => shippingMethods.id, { onDelete: "set null" }),

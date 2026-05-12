@@ -1,5 +1,6 @@
 import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { media } from "./media";
+import { locale } from "../system/settings";
 
 export const mediaTranslations = pgTable(
   "media_translations",
@@ -9,7 +10,10 @@ export const mediaTranslations = pgTable(
       .bigint("media_id", { mode: "number" })
       .references(() => media.id, { onDelete: "cascade" })
       .notNull(),
-    locale: t.varchar({ length: 10 }).notNull(),
+    locale: t
+      .varchar({ length: 10 })
+      .references(() => locale.id, { onDelete: "cascade" })
+      .notNull(),
     altText: t.text("alt_text"),
     caption: t.text(),
   }),

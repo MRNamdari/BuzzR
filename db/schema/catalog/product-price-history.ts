@@ -1,16 +1,21 @@
 import { check, index, pgTable } from "drizzle-orm/pg-core";
 import { productVariants } from "./product-variants";
 import { sql } from "drizzle-orm";
+import { products } from "./products";
+import { CurrencyEnum } from "../enums";
 
 export const productPriceHistory = pgTable(
   "product_price_history",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    variationId: t
-      .bigint("variation_id", { mode: "number" })
-      .references(() => productVariants.id, { onDelete: "cascade" })
+    productId: t
+      .bigint("product_id", { mode: "number" })
+      .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
-    currency: t.varchar({ length: 3 }).notNull(),
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "cascade" }),
+    currency: CurrencyEnum().notNull(),
     amount: t.numeric({ precision: 10, scale: 2 }).notNull(),
     validFrom: t
       .timestamp("valid_from", { withTimezone: true, mode: "string" })
@@ -24,7 +29,7 @@ export const productPriceHistory = pgTable(
       table.validFrom.asc().nullsLast().op("timestamptz_ops"),
       table.validTo.asc().nullsLast().op("timestamptz_ops"),
     ),
-    index("idx_pph_variation_currency").on(table.variationId, table.currency),
+    index("idx_pph_variation_currency").on(table.productId, table.currency),
     check("chk_valid_to", sql`(valid_to IS NULL) OR (valid_to > valid_from)`),
   ],
 );

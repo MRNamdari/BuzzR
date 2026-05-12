@@ -15,8 +15,8 @@ export const productBundleItems = pgTable(
       .bigint("product_id", { mode: "number" })
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
-    variationId: t
-      .bigint("variation_id", { mode: "number" })
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
       .references(() => productVariants.id, { onDelete: "cascade" }),
     quantity: t.integer().default(1).notNull(),
   }),

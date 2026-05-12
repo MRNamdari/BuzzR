@@ -1,5 +1,6 @@
 import { pgTable, unique } from "drizzle-orm/pg-core";
 import { collections } from "./collections";
+import { locale } from "../system/settings";
 
 export const collectionTranslations = pgTable(
   "collection_translations",
@@ -9,7 +10,10 @@ export const collectionTranslations = pgTable(
       .bigint("collection_id", { mode: "number" })
       .references(() => collections.id, { onDelete: "cascade" })
       .notNull(),
-    locale: t.varchar({ length: 10 }).notNull(),
+    locale: t
+      .bigint({ mode: "number" })
+      .references(() => locale.id, { onDelete: "cascade" })
+      .notNull(),
     name: t.varchar({ length: 255 }).notNull(),
     description: t.text(),
   }),

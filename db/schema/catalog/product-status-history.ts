@@ -1,6 +1,7 @@
 import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { users } from "../customers/users";
+import { AvailabilityStatusEnum, PublishStatusEnum } from "../enums";
 
 export const productStatusHistory = pgTable(
   "product_status_history",
@@ -10,10 +11,10 @@ export const productStatusHistory = pgTable(
       .bigint("product_id", { mode: "number" })
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
-    oldPublishStatus: t.varchar("old_publish_status", { length: 20 }),
-    newPublishStatus: t.varchar("new_publish_status", { length: 20 }),
-    oldAvailabilityStatus: t.varchar("old_availability_status", { length: 20 }),
-    newAvailabilityStatus: t.varchar("new_availability_status", { length: 20 }),
+    oldPublishStatus: PublishStatusEnum("old_publish_status"),
+    newPublishStatus: PublishStatusEnum("new_publish_status"),
+    oldAvailabilityStatus: AvailabilityStatusEnum("old_availability_status"),
+    newAvailabilityStatus: AvailabilityStatusEnum("new_availability_status"),
     changedBy: t
       .bigint("changed_by", { mode: "number" })
       .references(() => users.id, { onDelete: "set null" }),

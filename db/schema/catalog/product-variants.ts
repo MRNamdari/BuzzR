@@ -1,5 +1,6 @@
 import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { products } from "./products";
+import { AvailabilityStatusEnum } from "../enums";
 
 export const productVariants = pgTable(
   "product_variants",
@@ -12,8 +13,7 @@ export const productVariants = pgTable(
     sku: t.varchar({ length: 100 }),
     name: t.varchar({ length: 255 }),
     basePrice: t.numeric("base_price", { precision: 10, scale: 2 }).notNull(),
-    availabilityStatus: t
-      .varchar("availability_status", { length: 20 })
+    availabilityStatus: AvailabilityStatusEnum("availability_status")
       .default("available")
       .notNull(),
     createdAt: t

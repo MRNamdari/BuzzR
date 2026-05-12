@@ -1,5 +1,6 @@
 import { pgTable, unique } from "drizzle-orm/pg-core";
 import { roles } from "./roles";
+import { locale } from "../system/settings";
 
 export const rolesTranslations = pgTable(
   "roles_translations",
@@ -9,7 +10,10 @@ export const rolesTranslations = pgTable(
       .bigint("role_id", { mode: "number" })
       .references(() => roles.id, { onDelete: "cascade" })
       .notNull(),
-    locale: t.varchar({ length: 10 }).notNull(),
+    locale: t
+      .bigint("locale", { mode: "number" })
+      .references(() => locale.id, { onDelete: "cascade" })
+      .notNull(),
     name: t.varchar({ length: 50 }).notNull(),
     description: t.text(),
   }),

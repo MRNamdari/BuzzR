@@ -3,6 +3,7 @@ import { check, index, pgTable } from "drizzle-orm/pg-core";
 import { products } from "../catalog/products";
 import { orders } from "../orders/orders";
 import { users } from "./users";
+import { productVariants } from "../schema";
 
 export const reviews = pgTable(
   "reviews",
@@ -16,6 +17,9 @@ export const reviews = pgTable(
       .bigint("product_id", { mode: "number" })
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "set null" }),
     orderId: t
       .bigint("order_id", { mode: "number" })
       .references(() => orders.id, { onDelete: "set null" }),

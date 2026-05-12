@@ -1,11 +1,12 @@
 import { index, pgTable } from "drizzle-orm/pg-core";
+import { MediaTypeEnum } from "../enums";
 
 export const media = pgTable(
   "media",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
     url: t.text().notNull(),
-    type: t.varchar({ length: 20 }).notNull(),
+    type: MediaTypeEnum("type").notNull(),
     mimeType: t.varchar("mime_type", { length: 100 }),
     fileSize: t.bigint("file_size", { mode: "number" }),
     width: t.integer(),
@@ -35,9 +36,6 @@ export const media = pgTable(
       "btree",
       table.deletedAt.asc().nullsLast().op("timestamptz_ops"),
     ),
-    index("idx_media_type").using(
-      "btree",
-      table.type.asc().nullsLast().op("text_ops"),
-    ),
+    index("idx_media_type").using("btree", table.type.asc().nullsLast()),
   ],
 );

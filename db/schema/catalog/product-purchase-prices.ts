@@ -1,14 +1,18 @@
-import { foreignKey, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { productVariants } from "./product-variants";
 import { suppliers } from "../logistics/suppliers";
+import { products } from "./products";
 
 export const productPurchasePrices = pgTable(
   "product_purchase_prices",
   (t) => ({
     id: t.bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    variationId: t
-      .bigint("variation_id", { mode: "number" })
-      .notNull()
+    productId: t
+      .bigint("product_id", { mode: "number" })
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    variantId: t
+      .bigint("variant_id", { mode: "number" })
       .references(() => productVariants.id, { onDelete: "cascade" }),
     supplierId: t
       .bigint("supplier_id", { mode: "number" })
@@ -27,6 +31,6 @@ export const productPurchasePrices = pgTable(
       table.validFrom.asc().nullsLast().op("timestamptz_ops"),
       table.validTo.asc().nullsLast().op("timestamptz_ops"),
     ),
-    index("idx_ppp_variation_currency").on(table.variationId, table.currency),
+    index("idx_ppp_variant_currency").on(table.variantId, table.currency),
   ],
 );

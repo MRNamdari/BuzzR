@@ -1,5 +1,7 @@
 import { index, pgTable, unique } from "drizzle-orm/pg-core";
 import { products } from "./products";
+import { ProductRelationTypeEnum } from "../enums";
+import { productVariants } from "./product-variants";
 
 export const productRelations = pgTable(
   "product_relations",
@@ -15,7 +17,10 @@ export const productRelations = pgTable(
       })
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
-    relationType: t.varchar("relation_type", { length: 20 }).notNull(),
+    relatedVariantId: t
+      .bigint("related_variant_id", { mode: "number" })
+      .references(() => productVariants.id, { onDelete: "set null" }),
+    relationType: ProductRelationTypeEnum("relation_type").notNull(),
     position: t.integer().default(0).notNull(),
   }),
   (table) => [

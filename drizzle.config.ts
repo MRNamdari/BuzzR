@@ -17,10 +17,6 @@ export default defineConfig({
   schemaFilter: "public",
   tablesFilter: "*",
 
-  introspect: {
-    casing: "camel",
-  },
-
   migrations: {
     table: "__drizzle_migrations__",
     schema: "public",
