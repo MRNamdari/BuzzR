@@ -11,6 +11,10 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mikro-orm/core": "^7.0.15",
+    "@mikro-orm/entity-generator": "^7.0.15",
+    "@mikro-orm/migrations": "^7.0.15",
+    "@mikro-orm/postgresql": "^7.0.15",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
     "@mui/material-nextjs": "^9.0.0",
@@ -23,9 +27,11 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "reflect-metadata": "^0.2.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^7.0.15",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
@@ -35,6 +41,7 @@
     "eslint": "^10.0.0",
     "eslint-config-next": "^0.2.4",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5"
   }

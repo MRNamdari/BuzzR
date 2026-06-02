@@ -30,7 +30,7 @@ const theme = createTheme({
     fontFamily: JetBrains.style.fontFamily,
   },
   components: {},
-  shape: { borderRadius: 3 },
+  shape: { borderRadius: 8 },
 } as const);
 
 export default theme;

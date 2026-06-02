@@ -1,12 +1,12 @@
 import React from "react";
 
 type DashboardToolbarContextValue = {
-  title: string;
-  setTitle(title: string): void;
+  MenuOpen: boolean;
+  MenuClickHandler: (state: boolean) => void;
 };
 export const DASHBOARD_TOOLBAR_DEFAULT_VALUE: DashboardToolbarContextValue = {
-  title: "Dashboard",
-  setTitle: (title: string) => (DASHBOARD_TOOLBAR_DEFAULT_VALUE.title = title),
+  MenuOpen: false,
+  MenuClickHandler(state) {},
 };
 const DashboardToolbarContext =
   React.createContext<DashboardToolbarContextValue>(

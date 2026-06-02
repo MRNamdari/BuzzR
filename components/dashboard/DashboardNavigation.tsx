@@ -46,6 +46,7 @@ const ListItemButton = styled(MuiListItemButton)(({ theme }) => ({
   padding: 0,
   paddingBlock: 5,
   paddingInline: 6,
+  textTransform: "capitalize",
   "&[aria-selected=true]": {
     color: `light-dark(${theme.palette.grey[50]}, ${theme.palette.primary.light})`,
     "& > .MuiListItemIcon-root": {
@@ -133,19 +134,11 @@ export default function DashboardNavigation({
   }, [defaultStatus]);
   // Extraction of path names for active link
   const pathnames = usePathname().split("/").slice(2);
-  const ToolbarContext = React.useContext(DashboardToolbarContext);
-  React.useEffect(() => {
-    if (ToolbarContext.title !== pathnames[pathnames.length - 1]) {
-      ToolbarContext.setTitle(pathnames[pathnames.length - 1]);
-    }
-  }, [pathnames]);
 
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>(
     Object.assign(
       Object.fromEntries(DashboardItems.map((dit) => [dit.title, false])),
-      pathnames.length > 0
-        ? { [pathnames[0].replace(/^[a-z]/gim, (s) => s.toUpperCase())]: true }
-        : {},
+      { [pathnames[0]]: true },
     ),
   );
 
@@ -267,7 +260,7 @@ export default function DashboardNavigation({
               <ListItem
                 key={dit.title}
                 disablePadding
-                sx={{ display: "block" }}
+                sx={{ display: "block", mb: (t) => t.spacing(1) }}
               >
                 <Tooltip title={dit.title} arrow placement="right">
                   <ListItemButton
